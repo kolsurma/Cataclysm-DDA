@@ -189,50 +189,9 @@ void npc_edit_menu()
             }
         }
         break;
-        case D_HP: {
-            uimenu smenu;
-            smenu.return_invalid = true;
-            smenu.addentry( 0, true, 'q', "%s: %d", _( "Torso" ), p.hp_cur[hp_torso] );
-            smenu.addentry( 1, true, 'w', "%s: %d", _( "Head" ), p.hp_cur[hp_head] );
-            smenu.addentry( 2, true, 'a', "%s: %d", _( "Left arm" ), p.hp_cur[hp_arm_l] );
-            smenu.addentry( 3, true, 's', "%s: %d", _( "Right arm" ), p.hp_cur[hp_arm_r] );
-            smenu.addentry( 4, true, 'z', "%s: %d", _( "Left leg" ), p.hp_cur[hp_leg_l] );
-            smenu.addentry( 5, true, 'x', "%s: %d", _( "Right leg" ), p.hp_cur[hp_leg_r] );
-            smenu.selected = 0;
-            smenu.query();
-            int *bp_ptr = nullptr;
-            switch( smenu.ret ) {
-                case 0:
-                    bp_ptr = &p.hp_cur[hp_torso];
-                    break;
-                case 1:
-                    bp_ptr = &p.hp_cur[hp_head];
-                    break;
-                case 2:
-                    bp_ptr = &p.hp_cur[hp_arm_l];
-                    break;
-                case 3:
-                    bp_ptr = &p.hp_cur[hp_arm_r];
-                    break;
-                case 4:
-                    bp_ptr = &p.hp_cur[hp_leg_l];
-                    break;
-                case 5:
-                    bp_ptr = &p.hp_cur[hp_leg_r];
-                    break;
-                default:
-                    break;
-            }
-
-            if( bp_ptr != nullptr ) {
-                int value;
-                if( query_int( value, _( "Set the hitpoints to? Currently: %d" ), *bp_ptr ) && value >= 0 ) {
-                    *bp_ptr = value;
-                    p.reset_stats();
-                }
-            }
-        }
-        break;
+        case D_HP: 
+            npcHP( &p );
+            break;
         case D_PAIN: {
             int value;
             if( query_int( value, _( "Cause how much pain? pain: %d" ), p.get_pain() ) ) {
@@ -593,12 +552,63 @@ void debug_menu::npcstats( player *p ) {
             }
 
             default:
+                quit = true;
                 break;
         }
 
         if( bp_ptr != nullptr ) {
             int value;
             if( query_int( value, _( "Set the stat to? Currently: %d" ), *bp_ptr ) && value >= 0 ) {
+                *bp_ptr = value;
+                p->reset_stats();
+            }
+        }
+    }
+}
+void debug_menu::npcHP( player *p ) {
+    bool quit = false;
+    int lastselected = 0;
+    while( !quit ) {
+        uimenu smenu;
+        smenu.return_invalid = true;
+        smenu.addentry( 0, true, 'w', "%s: %d", _( "Torso" ), p->hp_cur[hp_torso] );
+        smenu.addentry( 1, true, 's', "%s: %d", _( "Head" ), p->hp_cur[hp_head] );
+        smenu.addentry( 2, true, 'a', "%s: %d", _( "Left arm" ), p->hp_cur[hp_arm_l] );
+        smenu.addentry( 3, true, 'd', "%s: %d", _( "Right arm" ), p->hp_cur[hp_arm_r] );
+        smenu.addentry( 4, true, 'z', "%s: %d", _( "Left leg" ), p->hp_cur[hp_leg_l] );
+        smenu.addentry( 5, true, 'x', "%s: %d", _( "Right leg" ), p->hp_cur[hp_leg_r] );
+        smenu.addentry( 999, true, 'q', "%s", _( "[q]uit" ) );
+        smenu.selected = lastselected;
+        smenu.query();
+        lastselected = smenu.ret;
+        int *bp_ptr = nullptr;
+        switch( smenu.ret ) {
+            case 0:
+                bp_ptr = &p->hp_cur[hp_torso];
+                break;
+            case 1:
+                bp_ptr = &p->hp_cur[hp_head];
+                break;
+            case 2:
+                bp_ptr = &p->hp_cur[hp_arm_l];
+                break;
+            case 3:
+                bp_ptr = &p->hp_cur[hp_arm_r];
+                break;
+            case 4:
+                bp_ptr = &p->hp_cur[hp_leg_l];
+                break;
+            case 5:
+                bp_ptr = &p->hp_cur[hp_leg_r];
+                break;
+            default:
+                quit = true;
+                break;
+        }
+
+        if( bp_ptr != nullptr ) {
+            int value;
+            if( query_int( value, _( "Set the hitpoints to? Currently: %d" ), *bp_ptr ) && value >= 0 ) {
                 *bp_ptr = value;
                 p->reset_stats();
             }

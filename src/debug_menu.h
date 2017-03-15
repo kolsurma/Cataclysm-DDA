@@ -19,6 +19,7 @@ void wishmutate( player *p );
 void wishskill( player *p );
 void mutation_wish();
 void npcstats( player *p );
+void npcHP( player *p );
 class mission_debug;
 
 }
