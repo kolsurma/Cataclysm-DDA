@@ -161,43 +161,9 @@ void npc_edit_menu()
         case D_SKILLS:
             wishskill( &p );
             break;
-        case D_STATS: {
-            uimenu smenu;
-            smenu.return_invalid = true;
-            smenu.addentry( 0, true, 'S', "%s: %d", _( "Maximum strength" ), p.str_max );
-            smenu.addentry( 1, true, 'D', "%s: %d", _( "Maximum dexterity" ), p.dex_max );
-            smenu.addentry( 2, true, 'I', "%s: %d", _( "Maximum intelligence" ), p.int_max );
-            smenu.addentry( 3, true, 'P', "%s: %d", _( "Maximum perception" ), p.per_max );
-            smenu.addentry( 999, true, 'q', "%s", _( "[q]uit" ) );
-            smenu.selected = 0;
-            smenu.query();
-            int *bp_ptr = nullptr;
-            switch( smenu.ret ) {
-                case 0:
-                    bp_ptr = &p.str_max;
-                    break;
-                case 1:
-                    bp_ptr = &p.dex_max;
-                    break;
-                case 2:
-                    bp_ptr = &p.int_max;
-                    break;
-                case 3:
-                    bp_ptr = &p.per_max;
-                    break;
-                default:
-                    break;
-            }
-
-            if( bp_ptr != nullptr ) {
-                int value;
-                if( query_int( value, _( "Set the stat to? Currently: %d" ), *bp_ptr ) && value >= 0 ) {
-                    *bp_ptr = value;
-                    p.reset_stats();
-                }
-            }
-        }
-        break;
+        case D_STATS: 
+            npcstats( &p );
+            break;
         case D_ITEMS:
             wishitem( &p );
             break;
@@ -583,6 +549,60 @@ void mission_debug::edit_mission( mission &m )
         case M_REMOVE:
             remove_mission( m );
             break;
+    }
+}
+void debug_menu::npcstats( player *p ) {
+    bool quit = false;
+    int lastselected = 0;
+    while( !quit ) {
+        uimenu smenu;
+        smenu.return_invalid = true;
+        smenu.addentry( 0, true, 'a', "Change all stats" );
+        smenu.addentry( 1, true, 'S', "%s: %d", _( "Maximum strength" ), p->str_max );
+        smenu.addentry( 2, true, 'D', "%s: %d", _( "Maximum dexterity" ), p->dex_max );
+        smenu.addentry( 3, true, 'I', "%s: %d", _( "Maximum intelligence" ), p->int_max );
+        smenu.addentry( 4, true, 'P', "%s: %d", _( "Maximum perception" ), p->per_max );
+        smenu.addentry( 999, true, 'q', "%s", _( "[q]uit" ) );
+        smenu.selected = lastselected;
+        smenu.query();
+        lastselected = smenu.ret;
+        int *bp_ptr = nullptr;
+        switch( smenu.ret ) {
+            case 1:
+                bp_ptr = &p->str_max;
+                break;
+            case 2:
+                bp_ptr = &p->dex_max;
+                break;
+            case 3:
+                bp_ptr = &p->int_max;
+                break;
+            case 4:
+                bp_ptr = &p->per_max;
+                break;
+            case 0: {
+                int value;
+                if( query_int( value, _( "Set stats to? " ) ) && value >= 0 ) {
+                    p->str_max = value;
+                    p->dex_max = value;
+                    p->int_max = value;
+                    p->per_max = value;
+                    p->reset_stats();
+                }
+                break;
+            }
+
+            default:
+                break;
+        }
+
+        if( bp_ptr != nullptr ) {
+            int value;
+            if( query_int( value, _( "Set the stat to? Currently: %d" ), *bp_ptr ) && value >= 0 ) {
+                *bp_ptr = value;
+                p->reset_stats();
+            }
+        }
     }
 }
 

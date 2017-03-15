@@ -18,7 +18,7 @@ void wishmonster( const tripoint &p = tripoint_min );
 void wishmutate( player *p );
 void wishskill( player *p );
 void mutation_wish();
-
+void npcstats( player *p );
 class mission_debug;
 
 }
